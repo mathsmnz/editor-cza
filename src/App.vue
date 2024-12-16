@@ -93,7 +93,7 @@ export default {
     const selections = ref([]);
     const editingSelection = ref(null);
     const selectedIndex = ref(null);
-    
+
 
     const loadFile = () => {
       const fileInput = document.createElement('input');
@@ -242,26 +242,46 @@ export default {
       console.log('Added selection:', newSelection);
     };
 
+    async function generateUniqueId(sortedCombos) {
+      const rawId = sortedCombos.join(",");
+      const encoder = new TextEncoder();
+      const data = encoder.encode(rawId);
+
+      // Use SubtleCrypto to hash the input
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
+      // Convert the hash buffer to a hexadecimal string
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+
+      return hashHex; // Hash is deterministic and filename-safe
+    }
+
     // Save an edited selection.
-    const saveSelection = (updatedSelection) => {
+    const saveSelection = async (updatedSelection) => {
       const index = selections.value.findIndex((sel) => sel.id === updatedSelection.id);
+
       if (index !== -1) {
-        if(updatedSelection.relatedCombos.length != 0){
-          // Generate unique hash for combo IDs
+        if (updatedSelection.relatedCombos.length != 0) {
           console.log(updatedSelection);
-          const sortedCombos = [updatedSelection.relatedCombos].sort();
-          const uniqueId = btoa(sortedCombos.join(","));
+
+          // Generate unique hash for combo IDs
+          const sortedCombos = [...updatedSelection.relatedCombos].sort(); // Use spread operator for proper sorting
+          const uniqueId = await generateUniqueId(sortedCombos); // Await the unique ID
 
           console.log(uniqueId);
 
+          // Update the selection ID
           updatedSelection.id = uniqueId;
         }
 
         selections.value[index] = { ...updatedSelection };
         console.log('Updated selection:', updatedSelection);
       }
+
       editingSelection.value = null;
     };
+
 
     const editSelection = (selection) => {
       editingSelection.value = { ...selection }
