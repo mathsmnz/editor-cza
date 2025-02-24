@@ -31,7 +31,7 @@
       <!-- Combos List -->
       <div class="w-2/3 bg-gray-50 p-4 rounded-lg outline outline-2 outline-black">
         <h2 class="text-xl font-semibold mb-4 text-gray-700">Opções para {{ selectedGroup?.label || 'No Group Selected'
-          }}</h2>
+        }}</h2>
         <ul>
           <li v-for="(combo, index) in selectedGroup?.combos || []" :key="index"
             class="p-3 mb-2 bg-white rounded outline outline-2 outline-black hover:bg-gray-100 flex justify-between items-center">
@@ -54,6 +54,8 @@
         <div class="flex flex-row justify-between items-center">
           <span class="w-fit h-fit">{{ selection.label }}</span>
           <div class="w-fit flex gap-2 justify-end h-full">
+            <button @click="renameFile(selection.id)" class="bg-green-600 text-white h-full px-2 py-1 rounded">Associar
+              Planta</button>
             <button @click="editSelection(selection)"
               class="bg-black h-full text-white px-2 py-1 rounded">Editar</button>
             <button @click="deleteSelection(index)" class="bg-red-500 h-full  px-2 py-1 rounded">Deletar</button>
@@ -134,14 +136,39 @@ export default {
       fileInput.click();
     };
 
-
     const saveFile = () => {
       const blob = new Blob([JSON.stringify({ data: data.value, selections: selections.value }, null, 2)], { type: 'application/json' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'data.json';
+      link.download = 'options.json';
       link.click();
     };
+
+    const renameFile = (id) => {
+      console.log(id);
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.ifc, image/*';
+      fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        
+        if (file) {
+          const fileType = file.name.split(".")[1];
+          console.log(fileType)
+          const newFile = new File([file], `${id}.${fileType}`, {
+            type: `.${fileType}`
+          });
+
+          // Create a download link for the renamed file
+          const downloadLink = document.createElement('a');
+          downloadLink.href = URL.createObjectURL(newFile);
+          downloadLink.download = newFile.name; // Specify the new filename
+          downloadLink.click(); // Trigger the download
+        }
+      };
+
+      fileInput.click();
+    }
 
     const selectGroup = (group) => {
       selectedGroup.value = group;
@@ -235,6 +262,7 @@ export default {
         description: "",
         id: selections.value.length.toString(),
         relatedCombos: [],
+        relatedGroups: []
       };
 
       // Add the selection object to the selections array
@@ -284,6 +312,7 @@ export default {
 
 
     const editSelection = (selection) => {
+      console.log('Ediding:', selection);
       editingSelection.value = { ...selection }
     };
 
@@ -315,6 +344,7 @@ export default {
       editSelection,
       saveSelection,
       deleteSelection,
+      renameFile,
     };
   },
 };

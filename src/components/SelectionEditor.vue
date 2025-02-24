@@ -64,7 +64,7 @@
 
                         <!-- Combos for Selected Group -->
                         <div class="pl-6 mt-2">
-                            <div v-for="combo in group.combos" :key="combo.id" class="flex items-center">
+                            <div v-for="combo in group.combos" :key="combo.associated" class="flex items-center">
                                 <input type="checkbox" :value="combo.associated" v-model="selectedCombos"
                                     :disabled="!selectedGroups.includes(group.id)" class="mr-2" />
                                 <label>{{ combo.label }}</label>
@@ -111,32 +111,26 @@ export default {
             label: props.selection.label || "",
             description: props.selection.description || "",
             relatedCombos: props.selection.relatedCombos || [],
+            relatedGroups: props.selection.relatedGroups || [], // Ensure relatedGroups are populated
         });
 
         // State for selected groups and combos (use arrays for reactivity)
         const selectedGroups = ref([...props.selection.groupIds || []]);
         const selectedCombos = ref([...props.selection.comboIds || []]);
 
-        // Watch selectedGroups to manage selectedCombos
-        watch(selectedGroups, (newGroups, oldGroups) => {
-            const removedGroups = oldGroups.filter((groupId) => !newGroups.includes(groupId));
+        // Watch for changes in the plant's relatedGroups and relatedCombos to update selectedGroups and selectedCombos
+        watch([() => props.selection.relatedGroups, () => props.selection.relatedCombos], ([newGroups, newCombos]) => {
+            // Initialize the selectedGroups based on relatedGroups
+            selectedGroups.value = newGroups || [];
 
-            removedGroups.forEach((groupId) => {
-                const group = props.availableCombos.find((g) => g.id === groupId);
-                if (group) {
-                    group.combos.forEach((combo) => {
-                        const index = selectedCombos.value.indexOf(combo.associated);
-                        if (index > -1) {
-                            selectedCombos.value.splice(index, 1); // Remove the combo
-                        }
-                    });
-                }
-            });
-        });
+            // Initialize the selectedCombos based on relatedCombos
+            selectedCombos.value = newCombos || [];
+        }, { immediate: true });
 
         // Save changes method
         const saveChanges = () => {
             plantData.relatedCombos = selectedCombos.value;
+            plantData.relatedGroups = selectedGroups.value;
 
             emit("save", {
                 ...plantData
