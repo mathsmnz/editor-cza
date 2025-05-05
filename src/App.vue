@@ -1,70 +1,71 @@
 <template>
-  <div class="flex flex-col w-screen h-screen gap-4 p-4">
-    <div class="text-8xl w-full">
-      <span class="text-4xl">CZA Data Editor</span>
+  <div class="flex flex-col grow h-screen w-screen font-montserrat">
+    <div class="max-w-8xl px-4 lg:px-8 py-4 border-b-2 border-black">
+      <span class="font-400 text-4xl hover:font-600">CZA+ Editor</span>
     </div>
 
-    <div class="actions mb-6 flex justify-start space-x-4">
-      <button @click="loadFile" class="rounded-lg p-4 bg-black text-white hover:bg-slate-900">Load JSON</button>
-      <button @click="saveFile" class="rounded-lg p-4 bg-black text-white hover:bg-slate-900">Save JSON</button>
-    </div>
-
-    <div class="flex space-x-8">
-      <!-- Groups List -->
-      <div class="w-1/3 bg-gray-50 p-4 rounded-lg  outline outline-2 outline-black">
-        <h2 class="text-xl font-semibold mb-4 text-gray-700">Grupos</h2>
-        <ul>
-          <li v-for="group in data" :key="group.id" @click="selectGroup(group)"
-            class="group-item p-3 mb-2 rounded cursor-pointer outline outline-2 outline-black hover:bg-gray-200"
-            :class="{ 'bg-gray-200': group.id === selectedGroup?.id }">
-            {{ group.label }}
-            <button @click.stop="editGroup(group)" class="ml-4 px-2 py-1 bg-black text-white rounded">Editar</button>
-          </li>
-        </ul>
-        <div class="mt-4">
-          <button @click="addGroup" class="rounded-lg p-4 bg-black text-white w-full">Adicionar Grupo</button>
-          <button @click="deleteGroup" class="rounded-lg p-4 w-full mt-2 bg-red-500 hover:bg-red-600">Deletar
-            Grupo</button>
-        </div>
+    <div class="p-4">
+      <div class="actions mb-6 flex justify-start space-x-4">
+        <button @click="loadFile" class="rounded-lg p-4 bg-black text-white hover:bg-slate-900">Load JSON</button>
+        <button @click="saveFile" class="rounded-lg p-4 bg-black text-white hover:bg-slate-900">Save JSON</button>
       </div>
 
-      <!-- Combos List -->
-      <div class="w-2/3 bg-gray-50 p-4 rounded-lg outline outline-2 outline-black">
-        <h2 class="text-xl font-semibold mb-4 text-gray-700">Opções para {{ selectedGroup?.label || 'No Group Selected'
-          }}</h2>
-        <ul>
-          <li v-for="(combo, index) in selectedGroup?.combos || []" :key="index"
-            class="p-3 mb-2 bg-white rounded outline outline-2 outline-black hover:bg-gray-100 flex justify-between items-center">
-            <span>{{ combo.label }}</span>
-            <div class="space-x-2">
-              <button @click="editCombo(index)" class="px-2 py-1 bg-black text-white rounded">Editar</button>
-              <button @click="deleteCombo(index)" class="px-2 py-1 rounded bg-red-500 hover:bg-red-600">Deletar</button>
-            </div>
-          </li>
-        </ul>
-        <button @click="addCombo" class="w-full rounded-lg p-4 bg-black text-white hover:bg-slate-900 mt-4">Adicionar
-          Opção</button>
-      </div>
-    </div>
-
-    <div class="flex flex-col w-full outline outline-black outline-2 rounded gap-4 p-4">
-      <span class="text-xl font-semibold mb-2 text-gray-700">Plantas</span>
-      <div v-for="(selection, index) in selections"
-        class="outline outline-black outline-2 rounded p-4 cursor-pointer hover:bg-gray-200">
-        <div class="flex flex-row justify-between items-center">
-          <span class="w-fit h-fit">{{ selection.label }}</span>
-          <div class="w-fit flex gap-2 justify-end h-full">
-            <button @click="editSelection(selection)"
-              class="bg-black h-full text-white px-2 py-1 rounded">Editar</button>
-            <button @click="deleteSelection(index)" class="bg-red-500 h-full  px-2 py-1 rounded">Deletar</button>
+      <div class="flex space-x-8">
+        <!-- Groups List -->
+        <div class="w-1/3 bg-gray-50 p-4 rounded-lg  outline outline-2 outline-black">
+          <h2 class="text-xl font-semibold mb-4 text-gray-700">Grupos</h2>
+          <ul>
+            <li v-for="group in data" :key="group.id" @click="selectGroup(group)"
+              class="group-item p-3 mb-2 rounded cursor-pointer outline outline-2 outline-black hover:bg-gray-200"
+              :class="{ 'bg-gray-200': group.id === selectedGroup?.id }">
+              {{ group.label }}
+              <button @click.stop="editGroup(group)" class="ml-4 px-2 py-1 bg-black text-white rounded">Editar</button>
+            </li>
+          </ul>
+          <div class="mt-4">
+            <button @click="addGroup" class="rounded-lg p-4 bg-black text-white w-full">Adicionar Grupo</button>
+            <button @click="deleteGroup" class="rounded-lg p-4 w-full mt-2 bg-red-500 hover:bg-red-600">Deletar
+              Grupo</button>
           </div>
         </div>
+
+        <!-- Combos List -->
+        <div class="w-2/3 bg-gray-50 p-4 rounded-lg outline outline-2 outline-black">
+          <h2 class="text-xl font-semibold mb-4 text-gray-700">Opções para {{ selectedGroup?.label || 'No Group Selected'
+            }}</h2>
+          <ul>
+            <li v-for="(combo, index) in selectedGroup?.combos || []" :key="index"
+              class="p-3 mb-2 bg-white rounded outline outline-2 outline-black hover:bg-gray-100 flex justify-between items-center">
+              <span>{{ combo.label }}</span>
+              <div class="space-x-2">
+                <button @click="editCombo(index)" class="px-2 py-1 bg-black text-white rounded">Editar</button>
+                <button @click="deleteCombo(index)" class="px-2 py-1 rounded bg-red-500 hover:bg-red-600">Deletar</button>
+              </div>
+            </li>
+          </ul>
+          <button @click="addCombo" class="w-full rounded-lg p-4 bg-black text-white hover:bg-slate-900 mt-4">Adicionar
+            Opção</button>
+        </div>
       </div>
-      <div class="w-full flex gap-4 justify-around">
-        <button @click="addSelection" class="p-4 w-1/2 bg-black text-white rounded-lg">Adicionar Planta</button>
+
+      <div class="flex flex-col w-full outline outline-black outline-2 rounded gap-4 p-4 mt-4">
+        <span class="text-xl font-semibold mb-2 text-gray-700">Plantas</span>
+        <div v-for="(selection, index) in selections"
+          class="outline outline-black outline-2 rounded p-4 cursor-pointer hover:bg-gray-200">
+          <div class="flex flex-row justify-between items-center">
+            <span class="w-fit h-fit">{{ selection.label }}</span>
+            <div class="w-fit flex gap-2 justify-end h-full">
+              <button @click="editSelection(selection)"
+                class="bg-black h-full text-white px-2 py-1 rounded">Editar</button>
+              <button @click="deleteSelection(index)" class="bg-red-500 h-full  px-2 py-1 rounded">Deletar</button>
+            </div>
+          </div>
+        </div>
+        <div class="w-full flex gap-4 justify-around">
+          <button @click="addSelection" class="p-4 w-1/2 bg-black text-white rounded-lg">Adicionar Planta</button>
+        </div>
       </div>
     </div>
-
     <!-- Modals -->
     <selection-editor v-if="editingSelection" :selection="editingSelection" :available-combos="data"
       @save="saveSelection" @cancel="cancelEdit" />
