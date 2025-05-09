@@ -110,27 +110,22 @@ export default {
             id: props.selection.id || "",
             label: props.selection.label || "",
             description: props.selection.description || "",
-            relatedCombos: props.selection.relatedCombos || [],
             relatedGroups: props.selection.relatedGroups || [], // Ensure relatedGroups are populated
         });
 
         // State for selected groups and combos (use arrays for reactivity)
         const selectedGroups = ref([...props.selection.groupIds || []]);
-        const selectedCombos = ref([...props.selection.comboIds || []]);
 
         // Watch for changes in the plant's relatedGroups and relatedCombos to update selectedGroups and selectedCombos
         watch([() => props.selection.relatedGroups, () => props.selection.relatedCombos], ([newGroups, newCombos]) => {
             // Initialize the selectedGroups based on relatedGroups
             selectedGroups.value = newGroups || [];
 
-            // Initialize the selectedCombos based on relatedCombos
-            selectedCombos.value = newCombos || [];
         }, { immediate: true });
 
         // Save changes method
         const saveChanges = () => {
             plantData.relatedCombos = selectedCombos.value;
-            plantData.relatedGroups = selectedGroups.value;
 
             emit("save", {
                 ...plantData
