@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { ref, toRefs } from 'vue';
+import { ref } from 'vue';
 
 export default {
     props: {

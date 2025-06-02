@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col grow h-screen w-screen font-montserrat">
+  <div class="flex flex-col grow h-screen font-montserrat">
     <div class="max-w-8xl px-4 lg:px-8 py-4 border-b-2 border-black">
       <span class="font-400 text-4xl hover:font-600">CZA+ Editor</span>
     </div>
@@ -10,18 +10,24 @@
         <button @click="saveFile" class="rounded-lg p-4 bg-black text-white hover:bg-slate-900">Save JSON</button>
       </div>
 
-      <div class="flex space-x-8">
+      <div class="flex">
         <!-- Groups List -->
-        <div class="w-1/3 bg-gray-50 p-4 rounded-lg  outline outline-2 outline-black">
+        <div class="w-1/3 bg-gray-50 p-4 border-t-2 border-l-2 border-r-2 border-black">
           <h2 class="text-xl font-semibold mb-4">Grupos</h2>
-          <ul>
-            <li v-for="group in data" :key="group.id" @click="selectGroup(group)"
-              class="group-item p-3 mb-2 rounded cursor-pointer outline outline-2 outline-black hover:bg-gray-200"
-              :class="{ 'bg-gray-200': group.id === selectedGroup?.id }">
-              {{ group.label }}
-              <button @click.stop="editGroup(group)" class="ml-4 px-2 py-1 bg-black text-white rounded">Editar</button>
-            </li>
-          </ul>
+          <div v-if="data.length === 0" class="p-4 text-center text-gray-500">
+            Nenhum grupo adicionado. Clique em "Adicionar Grupo" para começar.
+          </div>
+          <div v-else>
+            <ul>
+              <li v-for="group in data" :key="group.id" @click="selectGroup(group)"
+                class="group-item p-3 mb-2 cursor-pointer border-b border-black hover:bg-gray-200"
+                :class="{ 'bg-gray-200': group.id === selectedGroup?.id }">
+                {{ group.label }}
+                <button @click.stop="editGroup(group)"
+                  class="ml-4 px-2 py-1 bg-black text-white rounded">Editar</button>
+              </li>
+            </ul>
+          </div>
           <div class="mt-4">
             <button @click="addGroup" class="rounded-lg p-4 bg-black text-white w-full">Adicionar Grupo</button>
             <button @click="deleteGroup" class="rounded-lg p-4 w-full mt-2 bg-red-500 hover:bg-red-600">Deletar
@@ -30,31 +36,42 @@
         </div>
 
         <!-- Combos List -->
-        <div class="w-2/3 bg-gray-50 p-4 rounded-lg outline outline-2 outline-black">
-          <h2 class="text-xl font-semibold mb-4 ">Opções para {{ selectedGroup?.label || 'No Group Selected'}}</h2>
-          <ul>
-            <li v-for="(combo, index) in selectedGroup?.combos || []" :key="index"
-              class="p-3 mb-2 bg-white rounded outline outline-2 outline-black hover:bg-gray-100 flex justify-between items-center">
-              <span>{{ combo.label }}</span>
-              <div class="space-x-2">
-                <button @click="editCombo(index)" class="px-2 py-1 bg-black text-white rounded">Editar</button>
-                <button @click="deleteCombo(index)" class="px-2 py-1 rounded bg-red-500 hover:bg-red-600">Deletar</button>
-              </div>
-            </li>
-          </ul>
+        <div class="w-2/3 bg-gray-50 p-4 border-t-2  border-r-2 border-black">
+          <h2 class="text-xl font-semibold mb-4 ">{{ selectedGroup?.label ? `Opções para "${selectedGroup.label}"` :
+            'Nenhum grupo selecionado' }}</h2>
+          <div v-if="selectedGroup && selectedGroup.combos.length === 0" class="p-4 text-center text-gray-500">
+            Este grupo não possui opções. Clique em "Adicionar Opção".
+          </div>
+          <div v-else-if="!selectedGroup" class="p-4 text-center text-gray-500">
+            Selecione um grupo para ver as opções.
+          </div>
+          <div v-else>
+            <ul>
+              <li v-for="(combo, index) in selectedGroup?.combos || []" :key="index"
+                class="p-3 mb-2  border-b border-black hover:bg-gray-100 flex justify-between items-center">
+                <span>{{ combo.label }}</span>
+                <div class="space-x-2">
+                  <button @click="editCombo(index)" class="px-2 py-1 bg-black text-white rounded">Editar</button>
+                  <button @click="deleteCombo(index)"
+                    class="px-2 py-1 rounded bg-red-500 hover:bg-red-600">Deletar</button>
+                </div>
+              </li>
+            </ul>
+          </div>
           <button @click="addCombo" class="w-full rounded-lg p-4 bg-black text-white hover:bg-slate-900 mt-4">Adicionar
             Opção</button>
         </div>
       </div>
 
-      <div class="flex flex-col w-full outline outline-black outline-2 rounded gap-4 p-4 mt-4">
+      <div class="flex flex-col w-full border-2 border-black gap-4 p-4">
         <span class="text-xl font-semibold mb-2">Plantas</span>
         <div v-for="(selection, index) in selections"
-          class="outline outline-black outline-2 rounded p-4 cursor-pointer hover:bg-gray-200">
+          class="border-b border-black p-4 cursor-pointer hover:bg-gray-200">
           <div class="flex flex-row justify-between items-center">
             <span class="w-fit h-fit">{{ selection.label }}</span>
             <div class="w-fit flex gap-2 justify-end h-full">
-              <button @click="renameFile(selection.id)" class="bg-green-600 text-white h-full px-2 py-1 rounded">Associar
+              <button @click="renameFile(selection.id)"
+                class="bg-green-600 text-white h-full px-2 py-1 rounded">Associar
                 Planta</button>
               <button @click="editSelection(selection)"
                 class="bg-black h-full text-white px-2 py-1 rounded">Editar</button>
@@ -72,20 +89,24 @@
       @save="saveSelection" @cancel="cancelEdit" />
     <group-editor v-if="editingGroup" :group="editingGroup" @save="saveGroup" @cancel="cancelEdit" />
     <combo-editor v-if="editingCombo" :combo="editingCombo" @save="saveCombo" @cancel="cancelEdit" />
+    <ToastNotification :show="toastState.show" :message="toastState.message" :mode="toastState.mode"
+      :duration="toastState.duration" @close="hideToast" />
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import GroupEditor from './components/GroupEditor.vue';
 import ComboEditor from './components/ComboEditor.vue';
 import SelectionEditor from './components/SelectionEditor.vue';
+import ToastNotification from './components/ToastNotification.vue';
 
 export default {
   components: {
     GroupEditor,
     ComboEditor,
     SelectionEditor,
+    ToastNotification
   },
   setup() {
     const data = ref([]);
@@ -95,7 +116,23 @@ export default {
     const selections = ref([]);
     const editingSelection = ref(null);
     const selectedIndex = ref(null);
+    const toastState = reactive({
+      show: false,
+      message: '',
+      mode: 'success', // 'success', 'error', 'alert'
+      duration: 3000,  // Default duration
+    });
 
+    const showToast = (message, mode = 'success', duration = 3000) => {
+      toastState.message = message;
+      toastState.mode = mode;
+      toastState.duration = duration;
+      toastState.show = true;
+    };
+
+    const hideToast = () => {
+      toastState.show = false;
+    };
 
     const loadFile = () => {
       const fileInput = document.createElement('input');
@@ -109,6 +146,7 @@ export default {
             const rawData = JSON.parse(reader.result);
 
             if (!rawData.data || !Array.isArray(rawData.data)) {
+              showToast('Falha ao carregar o arquivo JSON. Verifique o formato.', 'error');
               throw new Error("Invalid JSON structure: 'data' is missing or not an array.");
             }
 
@@ -128,7 +166,8 @@ export default {
             console.log("Loaded and transformed JSON data:", data.value);
           } catch (err) {
             console.error("Error loading JSON:", err);
-            alert('Invalid JSON file.');
+            showToast('Falha ao carregar o arquivo JSON. Verifique o formato.', 'error');
+
           }
         };
         reader.readAsText(file);
@@ -142,6 +181,7 @@ export default {
       link.href = URL.createObjectURL(blob);
       link.download = 'options.json';
       link.click();
+       showToast('Ação completada com sucesso!', 'success');
     };
 
     const renameFile = (id) => {
@@ -151,7 +191,7 @@ export default {
       fileInput.accept = '.ifc, image/*';
       fileInput.onchange = (e) => {
         const file = e.target.files[0];
-        
+
         if (file) {
           const fileType = file.name.split(".")[1];
           console.log(fileType)
@@ -345,6 +385,8 @@ export default {
       saveSelection,
       deleteSelection,
       renameFile,
+      toastState,
+      hideToast
     };
   },
 };
