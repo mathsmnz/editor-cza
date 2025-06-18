@@ -58,7 +58,7 @@
               </li>
             </ul>
           </div>
-          <button @click="addCombo" class="w-full rounded-lg p-4 bg-black text-white hover:bg-slate-900 mt-4">Adicionar
+          <button @click="addCombo" class="w-full rounded-lg p-4 bg-black text-white hover:bg-slate-900 mt-4" :class="{ 'hidden': selectedGroup === null }">Adicionar
             Opção</button>
         </div>
       </div>
